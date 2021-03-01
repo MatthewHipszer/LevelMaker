@@ -7,12 +7,13 @@ class Main : JFrame() {
         initUI()
     }
 
+    //Initialize UI
     private fun initUI() {
 
+        //Add MapScreen which implements JPanel and ActionListener
         add(MapScreen())
 
         title = "LineTest"
-
         isResizable = false
         pack()
 

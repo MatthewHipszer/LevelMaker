@@ -12,10 +12,15 @@ class MapScreen : JPanel(), ActionListener {
     private val panelWidth = 1000
     private val panelHeight = 500
     //Offsets for scrolling
-    private val xOffset = 0
-    private val yOffset = 0
+    private var xOffset = 0
+    private var yOffset = 0
+    //Booleans for scrolling
+    private var scrollUp = false
+    private var scrollDown = false
+    private var scrollLeft = false
+    private var scrollRight = false
     //Delay between frames
-    private val delay = 140
+    private val delay = 10
     //Boolean to keep program looping.
     private var running = true
     //Timer for looping
@@ -23,9 +28,9 @@ class MapScreen : JPanel(), ActionListener {
     //Map image to edit
     private var map1: Image? = null
 
+
     //Initialize
     init {
-
         addKeyListener(KAdapter())
         addMouseListener(MAdapter())
         background = Color.black
@@ -53,7 +58,7 @@ class MapScreen : JPanel(), ActionListener {
     public override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         if (running) {
-            g.drawImage(map1,0, 0, this)
+            g.drawImage(map1, xOffset, yOffset, this)
             Toolkit.getDefaultToolkit().sync()
         } else {
             //Close the program if it is not running
@@ -61,33 +66,17 @@ class MapScreen : JPanel(), ActionListener {
         }
     }
 
-    //TODO turn this into a key for what all the buttons do
-    //Might be easier to just make the key an image and place it in a corner though.
-    //If going the image route just add it to loadImages and paintComponent
-    private fun textTest(g: Graphics) {
-
-        val textTest = "Text test"
-        val small = Font("Helvetica", Font.BOLD, 14)
-        val fontMetrics = getFontMetrics(small)
-
-        val rh = RenderingHints(
-            RenderingHints.KEY_ANTIALIASING,
-            RenderingHints.VALUE_ANTIALIAS_ON)
-
-        rh[RenderingHints.KEY_RENDERING] = RenderingHints.VALUE_RENDER_QUALITY
-
-        (g as Graphics2D).setRenderingHints(rh)
-
-        g.color = Color.white
-        g.font = small
-        g.drawString(textTest, (panelWidth - fontMetrics.stringWidth(textTest)) / 2,
-            panelHeight / 2)
-    }
-
     override fun actionPerformed(e: ActionEvent) {
 
         if (running) {
-            //Currently doesn't do anything
+            if (scrollUp)
+                yOffset++
+            if (scrollDown)
+                yOffset--
+            if (scrollLeft)
+                xOffset++
+            if (scrollRight)
+                xOffset--
         }
         repaint()
     }
@@ -97,8 +86,23 @@ class MapScreen : JPanel(), ActionListener {
         override fun keyPressed(e: KeyEvent?) {
 
             when(e!!.keyCode) {
+                KeyEvent.VK_W -> scrollUp = true
+                KeyEvent.VK_A -> scrollLeft = true
+                KeyEvent.VK_S -> scrollDown = true
+                KeyEvent.VK_D -> scrollRight = true
                 //Close program
                 KeyEvent.VK_ESCAPE -> running = false
+            }
+        }
+
+        override fun keyReleased(e: KeyEvent?) {
+
+            when(e!!.keyCode) {
+                KeyEvent.VK_W -> scrollUp = false
+                KeyEvent.VK_A -> scrollLeft = false
+                KeyEvent.VK_S -> scrollDown = false
+                KeyEvent.VK_D -> scrollRight = false
+
             }
         }
     }

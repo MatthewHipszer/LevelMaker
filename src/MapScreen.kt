@@ -28,12 +28,18 @@ class MapScreen : JPanel(), ActionListener {
     //Map image to edit
     private var map1: Image? = null
 
+    //Point storage
+    private val lastPoint: Point = Point(-10, -10)
+    private val currentPoint: Point = Point(-10, -10)
+    //Line array
+    private val lineInfoArray: MutableList<LineInfo> = ArrayList()
+
 
     //Initialize
     init {
         addKeyListener(KAdapter())
         addMouseListener(MAdapter())
-        background = Color.black
+        background = Color.white
         isFocusable = true
 
         preferredSize = Dimension(panelWidth, panelHeight)
@@ -54,11 +60,19 @@ class MapScreen : JPanel(), ActionListener {
     }
 
     //Paint
-    //TODO will need to incorporate offsets when scrolling is added
     public override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
+        g.color = Color.red
         if (running) {
             g.drawImage(map1, xOffset, yOffset, this)
+            if (lineInfoArray.size > 0)
+            {
+                for (i in 0 until lineInfoArray.size)
+                {
+                    g.drawLine(lineInfoArray[i].x1 + xOffset, lineInfoArray[i].y1 + yOffset,
+                        lineInfoArray[i].x2 + xOffset, lineInfoArray[i].y2 + yOffset)
+                }
+            }
             Toolkit.getDefaultToolkit().sync()
         } else {
             //Close the program if it is not running
@@ -102,7 +116,6 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = false
                 KeyEvent.VK_S -> scrollDown = false
                 KeyEvent.VK_D -> scrollRight = false
-
             }
         }
     }
@@ -110,7 +123,31 @@ class MapScreen : JPanel(), ActionListener {
     private inner class MAdapter : MouseAdapter() {
 
         override fun mouseClicked(e: MouseEvent?) {
-            println("Click Test")
+            if (e != null)
+            {
+                if ((lastPoint.x < 0) && (currentPoint.x < 0))
+                {
+                    lastPoint.x = (e.x - xOffset)
+                    lastPoint.y = (e.y - yOffset)
+                }
+                else if (currentPoint.x < 0)
+                {
+                    currentPoint.x = (e.x - xOffset)
+                    currentPoint.y = (e.y - yOffset)
+                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,0))
+                    //Now you need a type and to add it to the array
+                }
+                else
+                {
+                    lastPoint.x = currentPoint.x
+                    lastPoint.y = currentPoint.y
+                    currentPoint.x = (e.x - xOffset)
+                    currentPoint.y = (e.y - yOffset)
+                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,0))
+                    //Now you need a type and to add it to the array
+                }
+            }
+
         }
     }
 }

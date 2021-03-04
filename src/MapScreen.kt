@@ -6,6 +6,9 @@ import javax.swing.Timer
 import kotlin.system.exitProcess
 
 
+//TODO could change the last point current point stuff with undoing as some sort of stack like object
+//would probably simplify a decent amount of stuff
+
 class MapScreen : JPanel(), ActionListener {
 
     //Width of the panel
@@ -31,6 +34,7 @@ class MapScreen : JPanel(), ActionListener {
     //Point storage
     private val lastPoint: Point = Point(-10, -10)
     private val currentPoint: Point = Point(-10, -10)
+    private var typeCheck: Boolean = false
     //Line array
     private val lineInfoArray: MutableList<LineInfo> = ArrayList()
 
@@ -71,6 +75,11 @@ class MapScreen : JPanel(), ActionListener {
                 {
                     g.drawLine(lineInfoArray[i].x1 + xOffset, lineInfoArray[i].y1 + yOffset,
                         lineInfoArray[i].x2 + xOffset, lineInfoArray[i].y2 + yOffset)
+                    //Label the type of line in the middle of the line
+                    //It will say 0 if the type has not yet been assigned
+                    g.drawString((lineInfoArray[i].type + 1).toString(),
+                        (lineInfoArray[i].x1 + lineInfoArray[i].x2) / 2 + xOffset,
+                        (lineInfoArray[i].y1 + lineInfoArray[i].y2) / 2 + yOffset)
                 }
             }
             Toolkit.getDefaultToolkit().sync()
@@ -104,8 +113,57 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = true
                 KeyEvent.VK_S -> scrollDown = true
                 KeyEvent.VK_D -> scrollRight = true
+                //Undo
+                KeyEvent.VK_Z ->
+                {
+                    if (typeCheck)
+                    {
+                        typeCheck = false
+                        currentPoint.x = lastPoint.x
+                        currentPoint.y = lastPoint.y
+                        lineInfoArray.removeLast()
+                        println("did this undo?")
+                    }
+                    else
+                    {
+
+                        currentPoint.x = -10
+                        if (lineInfoArray.isNotEmpty()) {
+                            lineInfoArray.removeLast()
+                            //lastPoint.x = lineInfoArray[lineInfoArray.size - 1].x2
+                            //lastPoint.y = lineInfoArray[lineInfoArray.size - 1].y2
+                        }
+                        if (lineInfoArray.isNotEmpty()) {
+                            //lineInfoArray.removeLast()
+                            lastPoint.x = lineInfoArray[lineInfoArray.size - 1].x2
+                            lastPoint.y = lineInfoArray[lineInfoArray.size - 1].y2
+                        }
+                        println("did this undo2?")
+                    }
+                }
                 //Close program
                 KeyEvent.VK_ESCAPE -> running = false
+                //Enter a type
+                KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5, KeyEvent.VK_6 ->
+                {
+                    if (typeCheck)
+                    {
+                        //-48 will give the correct value
+                        lineInfoArray[lineInfoArray.size - 1].type = e.keyChar.toInt() - 49
+                        typeCheck = false
+                    }
+                }
+                KeyEvent.VK_7 ->
+                {
+                    if (typeCheck)
+                    {
+                        //typeCheck = false
+                        lastPoint.x = -10
+                        currentPoint.x = -10
+                        println("-----line broken-----")
+                        typePrompt()
+                    }
+                }
             }
         }
 
@@ -125,29 +183,44 @@ class MapScreen : JPanel(), ActionListener {
         override fun mouseClicked(e: MouseEvent?) {
             if (e != null)
             {
-                if ((lastPoint.x < 0) && (currentPoint.x < 0))
+                if ((lastPoint.x == -10) && (currentPoint.x == -10) && (!typeCheck))
                 {
                     lastPoint.x = (e.x - xOffset)
                     lastPoint.y = (e.y - yOffset)
                 }
-                else if (currentPoint.x < 0)
+                else if ((currentPoint.x == -10) && (!typeCheck))
                 {
                     currentPoint.x = (e.x - xOffset)
                     currentPoint.y = (e.y - yOffset)
-                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,0))
+                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,-1))
+                    typeCheck = true
                     //Now you need a type and to add it to the array
                 }
-                else
+                else if (!typeCheck)
                 {
                     lastPoint.x = currentPoint.x
                     lastPoint.y = currentPoint.y
                     currentPoint.x = (e.x - xOffset)
                     currentPoint.y = (e.y - yOffset)
-                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,0))
-                    //Now you need a type and to add it to the array
+                    lineInfoArray.add(LineInfo(lastPoint.x, lastPoint.y, currentPoint.x,currentPoint.y,-1))
+                    typeCheck = true
+                }
+                if (typeCheck)
+                {
+                    typePrompt()
                 }
             }
-
         }
+    }
+
+    private fun typePrompt() {
+        println("Enter a type from 1 - 6")
+        println("1. Wall")
+        println("2. Floor")
+        println("3. SemiSolid Floor")
+        println("4. Downward Slope")
+        println("5. Upward Slope")
+        println("6. Ceiling")
+        println("7. Break line")
     }
 }

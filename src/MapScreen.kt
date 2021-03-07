@@ -1,5 +1,6 @@
 import java.awt.*
 import java.awt.event.*
+import java.io.File
 import java.util.*
 import javax.swing.ImageIcon
 import javax.swing.JPanel
@@ -21,6 +22,7 @@ class MapScreen : JPanel(), ActionListener {
     private var yOffset = 0
 
     //Booleans for scrolling
+    private val scrollSpeed = 5
     private var scrollUp = false
     private var scrollDown = false
     private var scrollLeft = false
@@ -114,13 +116,13 @@ class MapScreen : JPanel(), ActionListener {
         //Simple scrolling code
         if (running) {
             if (scrollUp)
-                yOffset++
+                yOffset += scrollSpeed
             if (scrollDown)
-                yOffset--
+                yOffset -= scrollSpeed
             if (scrollLeft)
-                xOffset++
+                xOffset += scrollSpeed
             if (scrollRight)
-                xOffset--
+                xOffset -= scrollSpeed
         }
         repaint()
     }
@@ -135,6 +137,10 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = true
                 KeyEvent.VK_S -> scrollDown = true
                 KeyEvent.VK_D -> scrollRight = true
+                //Output code
+                KeyEvent.VK_O -> {
+                    outputData()
+                }
                 //Undo code
                 KeyEvent.VK_Z -> {
                     //If there is more than one point on the pointStack
@@ -189,6 +195,16 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = false
                 KeyEvent.VK_S -> scrollDown = false
                 KeyEvent.VK_D -> scrollRight = false
+            }
+        }
+    }
+
+    //Outputs the data stored in lineInfoArray into a text file for future use
+    private fun outputData() {
+        File("map1.txt").printWriter().use { out ->
+            lineInfoArray.forEach {
+                //println("${it.x1},${it.y1},${it.x2},${it.y2},${it.type}")
+                out.println("${it.x1},${it.y1},${it.x2},${it.y2},${it.type}")
             }
         }
     }

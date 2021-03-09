@@ -168,10 +168,18 @@ class MapScreen : JPanel(), ActionListener {
                 //Close program
                 KeyEvent.VK_ESCAPE -> running = false
                 //Enter a type
-                KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5, KeyEvent.VK_6 -> {
+                KeyEvent.VK_1, KeyEvent.VK_3, KeyEvent.VK_6 -> {
                     if (typeCheck) {
                         //Translate the keyPress into the correct type based on keyEvent
                         lineInfoArray[lineInfoArray.size - 1].type = e.keyChar.toInt() - keyDifference
+                        typeCheck = false
+
+                    }
+                }
+                KeyEvent.VK_2 ->
+                {
+                    if (typeCheck) {
+                        assignFloorType()
                         typeCheck = false
                     }
                 }
@@ -195,6 +203,23 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = false
                 KeyEvent.VK_S -> scrollDown = false
                 KeyEvent.VK_D -> scrollRight = false
+            }
+        }
+    }
+
+    //Manually assigns the floor type based on the difference between two
+    //points y values
+    private fun assignFloorType() {
+        val pointDifference: Int = lineInfoArray[lineInfoArray.size - 1].y1 - lineInfoArray[lineInfoArray.size - 1].y2
+        when {
+            pointDifference > 0 -> {
+                lineInfoArray[lineInfoArray.size - 1].type = 4
+            }
+            pointDifference < 0 -> {
+                lineInfoArray[lineInfoArray.size - 1].type = 3
+            }
+            else -> {
+                lineInfoArray[lineInfoArray.size - 1].type = 1
             }
         }
     }
@@ -248,12 +273,12 @@ class MapScreen : JPanel(), ActionListener {
 
     //Simply asks the user what type of collision line this is
     private fun typePrompt() {
-        println("Enter a type from 1 - 6")
+        println("Enter type.")
         println("1. Wall")
         println("2. Floor")
         println("3. SemiSolid Floor")
-        println("4. Downward Slope")
-        println("5. Upward Slope")
+        //println("4. Downward Slope")
+        //println("5. Upward Slope")
         println("6. Ceiling")
         println("7. Break line")
     }

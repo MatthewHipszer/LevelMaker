@@ -203,8 +203,15 @@ class MapScreen : JPanel(), ActionListener {
     private fun outputData() {
         File("map1.txt").printWriter().use { out ->
             lineInfoArray.forEach {
-                //println("${it.x1},${it.y1},${it.x2},${it.y2},${it.type}")
-                out.println("${it.x1},${it.y1},${it.x2},${it.y2},${it.type}")
+                out.print("${it.x1},${it.y1},${it.x2},${it.y2},")
+                when (it.type) {
+                    0 -> out.println("WALL")
+                    1 -> out.println("FLOOR")
+                    2 -> out.println("SEMISOLIDFLOOR")
+                    3 -> out.println("DOWNWARDSLOPE")
+                    4 -> out.println("UPWARDSLOPE")
+                    5 -> out.println("CEILING")
+                }
             }
         }
     }

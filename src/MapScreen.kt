@@ -27,6 +27,8 @@ class MapScreen : JPanel(), ActionListener {
     private var scrollDown = false
     private var scrollLeft = false
     private var scrollRight = false
+    //Straight line boolean
+    private var straightLine = false
 
     //Delay between frames
     private val delay = 10
@@ -137,6 +139,8 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = true
                 KeyEvent.VK_S -> scrollDown = true
                 KeyEvent.VK_D -> scrollRight = true
+                //Straight line code
+                KeyEvent.VK_SHIFT -> straightLine = true
                 //Output code
                 KeyEvent.VK_O -> {
                     outputData()
@@ -203,6 +207,8 @@ class MapScreen : JPanel(), ActionListener {
                 KeyEvent.VK_A -> scrollLeft = false
                 KeyEvent.VK_S -> scrollDown = false
                 KeyEvent.VK_D -> scrollRight = false
+                //Straight line code
+                KeyEvent.VK_SHIFT -> straightLine = false
             }
         }
     }
@@ -254,12 +260,22 @@ class MapScreen : JPanel(), ActionListener {
                     //Make the tempPoint equal to the top of the stack
                     tempPoint.x = pointStack.peek().x
                     tempPoint.y = pointStack.peek().y
-                    //Add the new point to the stack
-                    pointStack.push(Point(e.x - xOffset, e.y - yOffset))
+
+                    if (straightLine)
+                    {
+                        //Add the new point to the stack
+                        pointStack.push(Point(tempPoint.x, e.y - yOffset))
+                    }
+                    else
+                    {
+                        //Add the new point to the stack
+                        pointStack.push(Point(e.x - xOffset, e.y - yOffset))
+                    }
                     //Create a line using the tempPoint and the new Point
                     lineInfoArray.add(LineInfo(tempPoint.x, tempPoint.y, pointStack.peek().x, pointStack.peek().y, -1))
                     //Set the program to typeCheck mode
                     typeCheck = true
+
                 }
 
                 //If you are in typeCheck mode

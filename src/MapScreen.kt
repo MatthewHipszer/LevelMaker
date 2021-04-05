@@ -232,6 +232,9 @@ class MapScreen : JPanel(), ActionListener {
 
     //Outputs the data stored in lineInfoArray into a text file for future use
     private fun outputData() {
+
+        lineInfoArray.sortBy { it.type  }
+
         File("map1.txt").printWriter().use { out ->
             lineInfoArray.forEach {
                 out.print("${it.x1},${it.y1},${it.x2},${it.y2},")
